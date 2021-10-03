@@ -58,7 +58,7 @@ Supported operations:
 
 <img width="947" alt="3" src="https://user-images.githubusercontent.com/69070536/135741958-4d671537-30ab-4a86-ace6-a2d1026be5c9.PNG">
 
-<img width="947" height="800" alt="4" src="https://user-images.githubusercontent.com/69070536/135741966-eeb310aa-eab8-4c35-931a-634c437da0d2.PNG">
+<img width="947" height="600" alt="4" src="https://user-images.githubusercontent.com/69070536/135741966-eeb310aa-eab8-4c35-931a-634c437da0d2.PNG">
 
 
 
