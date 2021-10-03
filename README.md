@@ -1,3 +1,4 @@
+
 # Big-Integer
 
 Big Integer is a header file which handles various operations on very large numbers.
@@ -52,7 +53,7 @@ Supported operations:
     * lcm(BigI, BigI)
     * size() 
   
-#Outputs when we run main.cpp:
+## Outputs when we run main.cpp: 
 
 <img width="947" alt="1" src="https://user-images.githubusercontent.com/69070536/135741947-26668e9c-6390-4e98-82b1-cb411988f8e7.PNG">
 
