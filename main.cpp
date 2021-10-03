@@ -1,5 +1,5 @@
 #include<iostream>
-#include "bigInt.h"
+#include "bigInt.h" // including the big integer header file
 using namespace std;
 
 int main(){
