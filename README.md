@@ -58,7 +58,11 @@ Supported operations:
 
 <img width="947" alt="3" src="https://user-images.githubusercontent.com/69070536/135741958-4d671537-30ab-4a86-ace6-a2d1026be5c9.PNG">
 
-<img width="1000" height="600" alt="4" src="https://user-images.githubusercontent.com/69070536/135741966-eeb310aa-eab8-4c35-931a-634c437da0d2.PNG">
+<img width="947" alt="5" src="https://user-images.githubusercontent.com/69070536/135742120-805602c4-392f-4d64-b2da-2cf7db1f8c98.PNG">
+
+<img width="947" alt="6" src="https://user-images.githubusercontent.com/69070536/135742125-c5450191-2ec6-47da-b09d-399db99de398.PNG">
+
+
 
 
 
