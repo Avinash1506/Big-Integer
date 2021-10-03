@@ -1,6 +1,6 @@
 # Big-Integer
 
-Big Integer is a header file which contains handles various operations on very large numbers.
+Big Integer is a header file which handles various operations on very large numbers.
 
 The maximum number which can be stored in long long int in c++ is 9, 223, 372, 036, 854, 775, 807 which contains 19 digits but using this header file we can perform various operations on numbers containing up to 10^5 digits.
 
@@ -51,6 +51,8 @@ Supported operations:
     * gcd(BigI, BigI)
     * lcm(BigI, BigI)
     * size() 
+  
+#Outputs when we run main.cpp:
 
 <img width="947" alt="1" src="https://user-images.githubusercontent.com/69070536/135741947-26668e9c-6390-4e98-82b1-cb411988f8e7.PNG">
 
