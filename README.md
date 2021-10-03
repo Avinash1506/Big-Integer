@@ -54,9 +54,9 @@ Supported operations:
 
 <img width="645" alt="1" src="https://user-images.githubusercontent.com/69070536/135741947-26668e9c-6390-4e98-82b1-cb411988f8e7.PNG">
 
-<img width="331" alt="2" src="https://user-images.githubusercontent.com/69070536/135741953-509e2b6c-b498-4f59-a8b1-690052f622f3.PNG">
+<img width="645" alt="2" src="https://user-images.githubusercontent.com/69070536/135741953-509e2b6c-b498-4f59-a8b1-690052f622f3.PNG">
 
-<img width="592" alt="3" src="https://user-images.githubusercontent.com/69070536/135741958-4d671537-30ab-4a86-ace6-a2d1026be5c9.PNG">
+<img width="645" alt="3" src="https://user-images.githubusercontent.com/69070536/135741958-4d671537-30ab-4a86-ace6-a2d1026be5c9.PNG">
 
 <img width="947" alt="4" src="https://user-images.githubusercontent.com/69070536/135741966-eeb310aa-eab8-4c35-931a-634c437da0d2.PNG">
 
