@@ -1,5 +1,10 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <complex>
+#include <algorithm>
+
 using namespace std;
+
 class BigI
 {
     private:
@@ -9,9 +14,9 @@ class BigI
 
     public:
 
-      //method for addition
+      // method for addition
 
-      BigI operator + (BigI obj) {
+      BigI operator + (BigI & obj) {
           if( (this->sign ^ obj.sign) == 0 ) {
               BigI ans;
 
@@ -106,9 +111,9 @@ class BigI
           }
       }
 
-      //method for subtraction
+      // method for subtraction
 
-      BigI operator - (BigI obj) {
+      BigI operator - (BigI & obj) {
 
             // if both are positive or both are negative
             if( (this->sign ^ obj.sign) == 0 ) {
@@ -209,16 +214,15 @@ class BigI
 
       }
 
+      // method for multiplication
 
-      //method for multiplication
-
-      BigI operator * ( BigI obj ) {
+      BigI operator * (BigI & obj ) {
             vector<int> num1,num2;
             num1 = num;
             num2 = obj.num;
-            vector<int> num3 = this->karatsuba(num1, num2);
+
             BigI ans;
-            ans.num = num3;
+
             if( (this->sign ^ obj.sign) == 0) {
                 ans.sign = 0;
             }
@@ -226,160 +230,60 @@ class BigI
                 ans.sign = 1;
             }
 
+            if(num1.size() * num2.size() <= 1000000) {
+
+                vector<int> num3 = naive_mul(num1,num2);
+                reverse(num3.begin(), num3.end());
+                ans.num = num3;
+                ans.removeStartingZeros();
+                return ans;
+
+            }
+
+            //vector<int> num3 = this->karatsuba(num1, num2);
+            //ans.num = num3;
+
+
+            //ans.removeStartingZeros();
+
+            //return ans;
+
+            reverse(num1.begin(), num1.end());
+            reverse(num2.begin(), num2.end());
+
+            vector<int> num3 = this->fft_mul(num1,num2);
+
+            int carry = 0;
+
+            for(int i = 0; i < (int)num3.size(); i++) {
+                num3[i] += carry;
+                carry = num3[i]/10;
+                num3[i] %= 10;
+            }
+
+            ans.num = num3;
+
+            reverse(ans.num.begin(), ans.num.end());
+
             ans.removeStartingZeros();
 
             return ans;
       }
 
-      //method for division
+      // method for division
 
       BigI operator / (BigI b) {
 
-            BigI ans;
-            ans.sign = sign ^ b.sign;
-
-            sign = 0;
-            b.sign = 0;
-
-            if( *this < b ) {
-
-                BigI zero;
-                zero = extractBigIFromInt(0);
-
-                return zero;
-
-            }
-
-            if( *this == b ) {
-
-                BigI one;
-                one = extractBigIFromInt(1);
-
-                return one;
-
-            }
-
-            BigI zero;
-            int dividendSize = num.size();
-            zero = extractBigIFromInt(0);
-
-            if(b == zero) {
-                cerr<<"Division by zero error: ";
-                BigI ans = extractBigIFromInt(-1);
-                return ans;
-            }
-
-            BigI t;
-            t.sign = 0;
-
-            t.num.push_back(num[0]);
-
-            int i;
-
-            for(i = 1; i < dividendSize; i++) {
-                if( t >= b ) {
-                    break;
-                }
-
-                t.num.push_back( num[i] );
-            }
-
-            pair<int, vector<int> > quotientAndRemainder = this->divideBySubtraction(t, b);
-
-            ans.num.push_back( quotientAndRemainder.first );
-            vector<int> remainder = quotientAndRemainder.second;
-
-            while( i < dividendSize) {
-
-                remainder.push_back(num[i]);
-                BigI remainder_bigi;
-                remainder_bigi.sign = 0;
-                remainder_bigi.num = remainder;
-                remainder_bigi.removeStartingZeros();
-                i++;
-
-                pair<int, vector<int> > quotientAndRemainder1 = this->divideBySubtraction(remainder_bigi, b);
-
-                ans.num.push_back( quotientAndRemainder1.first );
-
-                remainder = quotientAndRemainder1.second;
-
-            }
-
-            return ans;
+          return quotientAndRemainder(*this, b).first;
 
       }
 
-      //method for modulus
+      // method for modulus
 
-      BigI operator % (BigI b) {
-            BigI ans;
-            ans.sign = sign ^ b.sign;
+      BigI operator % (BigI &b) {
 
-            sign = 0;
-            b.sign = 0;
+          return quotientAndRemainder(*this, b).second;
 
-            if( *this < b ) {
-
-                return *this;
-
-            }
-
-            if( *this == b ) {
-
-                BigI zero;
-                zero = extractBigIFromInt(0);
-
-                return zero;
-
-            }
-
-            BigI zero;
-            int dividendSize = num.size();
-            zero = extractBigIFromInt(0);
-
-            if(b == zero) {
-                BigI ans = extractBigIFromInt(-1);
-                return ans;
-            }
-            BigI t;
-            t.sign = 0;
-
-            t.num.push_back(num[0]);
-
-            int i;
-
-            for(i = 1; i < dividendSize; i++) {
-                if( t >= b ) {
-                    break;
-                }
-
-                t.num.push_back( num[i] );
-            }
-
-            pair<int, vector<int> > quotientAndRemainder = t.divideBySubtraction(t, b);
-
-            ans.num.push_back( quotientAndRemainder.first );
-            vector<int> remainder = quotientAndRemainder.second;
-
-            while( i < dividendSize) {
-
-                remainder.push_back(num[i]);
-                BigI remainder_bigi;
-                remainder_bigi.sign = 0;
-                remainder_bigi.num = remainder;
-                remainder_bigi.removeStartingZeros();
-                i++;
-
-                pair<int, vector<int> > quotientAndRemainder1 = remainder_bigi.divideBySubtraction(remainder_bigi, b);
-
-                remainder = quotientAndRemainder1.second;
-
-            }
-
-            ans.num = remainder;
-
-            return ans;
       }
 
       // performs BigI + int
@@ -431,52 +335,52 @@ class BigI
             return *this % num2;
       }
 
-      //short-hand notation for +
+      // short-hand notation for +
 
-      BigI & operator += (const BigI &num2) {
+      BigI & operator += (BigI &num2) {
 
             *this = *this + num2;
 
             return *this;
       }
 
-      //short-hand notation for -
+      // short-hand notation for -
 
-      BigI & operator -= (const BigI &num2) {
+      BigI & operator -= (BigI &num2) {
 
             *this = *this - num2;
 
             return *this;
       }
 
-      //short-hand notation for *
+      // short-hand notation for *
 
-      BigI & operator *= (const BigI &num2) {
+      BigI & operator *= (BigI &num2) {
 
             *this = (*this)*(num2);
 
             return *this;
       }
 
-      //short-hand notation for /
+      // short-hand notation for /
 
-      BigI & operator /= (const BigI &num2) {
+      BigI & operator /= (BigI &num2) {
 
             *this = (*this)/(num2);
 
             return *this;
       }
 
-      //short-hand notation for %
+      // short-hand notation for %
 
-      BigI & operator %= (const BigI &num2) {
+      BigI & operator %= ( BigI &num2) {
 
             *this = (*this) % (num2);
 
             return *this;
       }
 
-      //short-hand notation for + with int
+      // short-hand notation for + with int
 
       BigI & operator += (int num2) {
 
@@ -485,7 +389,7 @@ class BigI
             return *this;
       }
 
-      //short-hand notation for - with int
+      // short-hand notation for - with int
 
       BigI & operator -= (int num2) {
 
@@ -494,7 +398,7 @@ class BigI
             return *this;
       }
 
-      //short-hand notation for * with int
+      // short-hand notation for * with int
 
       BigI & operator *= (int num2) {
 
@@ -503,7 +407,7 @@ class BigI
             return *this;
       }
 
-      //short-hand notation for / with int
+      // short-hand notation for / with int
 
       BigI & operator /= (int num2) {
 
@@ -512,7 +416,7 @@ class BigI
             return *this;
       }
 
-      //short-hand notation for % with int
+      // short-hand notation for % with int
 
       BigI & operator %= (int num2) {
 
@@ -521,15 +425,14 @@ class BigI
             return *this;
       }
 
-
-      //pre-increment operator
+      // pre-increment operator
 
       BigI operator ++ () {
           *this = *this + 1;
           return *this;
       }
 
-      //post-increment operator
+      // post-increment operator
 
       BigI operator ++ (int) {
           BigI num1 = *this;
@@ -537,15 +440,14 @@ class BigI
           return num1;
       }
 
-      //pre-decrement operator
+      // pre-decrement operator
 
       BigI operator -- () {
           *this=*this - 1;
           return *this;
       }
 
-
-      //post-decrement operator
+      // post-decrement operator
 
       BigI operator -- (int) {
 
@@ -556,231 +458,112 @@ class BigI
           return num1;
       }
 
-      //greater than operator
+      // returns 1 if b1 > b2, -1 if b1 < b2 and 0 if b1 == b2
 
-      bool operator > (BigI b) {
-
-            if( this->sign == 0 && b.sign == 0) {
-                vector<int> num1,num2;
-
-                num1 = num;
-                num2 = b.num;
-
-                if( num1.size() > num2.size() )
-                    return true;
-
-                if( num1.size() < num2.size())
-                    return false;
-
-                for(int i = 0; i < (int)num1.size(); i++) {
-
-                    if(num1[i] > num2[i])
-                        return true;
-
-                    if(num1[i] < num2[i])
-                        return false;
-
-                }
-
-                return false;
-            }
-            else if( this->sign == 1 && b.sign == 1) {
-                BigI b1, b2;
-                b1.sign = b2.sign = 0;
-                b1.num = num;
-                b2.num = b.num;
-                return b1 < b2;
-            }
-            else if( this->sign == 1 && b.sign == 0) {
-                return false;
-            }
-            else {
-                return true;
-            }
-      }
-
-      //greater than or equal to operator
-
-      bool operator >= (BigI b) {
-
-            if( this->sign == 0 && b.sign == 0) {
-                vector<int> num1,num2;
-
-                num1 = num;
-                num2 = b.num;
-
-                if( num1.size() > num2.size() )
-                    return true;
-
-                if( num1.size() < num2.size())
-                    return false;
-
-                for(int i = 0; i < (int)num1.size(); i++) {
-
-                    if(num1[i] > num2[i])
-                        return true;
-
-                    if(num1[i] < num2[i])
-                        return false;
-
-                }
-
-                return true;
-            }
-            else if( this->sign == 1 && b.sign == 1) {
-                BigI b1, b2;
-                b1.sign = b2.sign = 0;
-                b1.num = num;
-                b2.num = b.num;
-
-                return b1 <= b2;
-            }
-            else if( this->sign == 1 && b.sign == 0 ) {
-                return false;
-            }
-            else {
-                return true;
-            }
-      }
-
-      //less than operator
-
-      bool operator < (BigI b) {
-
-            if( this->sign == 0 && b.sign == 0) {
-                vector<int> num1,num2;
-
-                num1 = num;
-                num2 = b.num;
-
-                if( num1.size() < num2.size() )
-                    return true;
-
-                if( num1.size() > num2.size())
-                    return false;
-
-                for(int i = 0; i < (int)num1.size(); i++) {
-
-                    if(num1[i] < num2[i])
-                        return true;
-
-                    if(num1[i] > num2[i])
-                        return false;
-
-                }
-
-                return false;
-            }
-            else if( this->sign == 1 && b.sign == 1 ) {
-
-                BigI b1, b2;
-                b1.sign = 0;
-                b2.sign = 0;
-                b1.num = num;
-                b2.num = b.num;
-
-                return b1 > b2;
-            }
-            else if( this->sign == 1 && b.sign ==0 )
-                return true;
-
-            else
-                return false;
-      }
-
-      //less than or equal to operator
-
-      bool operator <= (BigI b) {
-
-            if( this->sign == 0 && b.sign == 0 ) {
+      int assignmentOperators(const BigI & b1, const BigI & b2) {
+            if( (b1.sign ^ b2.sign) == 0)   {
 
                 vector<int> num1,num2;
 
-                num1 = num;
-                num2 = b.num;
+                num1 = b1.num;
+                num2 = b2.num;
 
-                if( num1.size() < num2.size() )
-                    return true;
+                if( num1.size() > num2.size() ) {
+                    if(b1.sign == 1) {
+                        return -1;
+                    }
+                    return 1;
+                }
 
-                if( num1.size() > num2.size())
-                    return false;
+                if( num1.size() < num2.size()) {
+                    if(b1.sign == 1) {
+                        return 1;
+                    }
+                    return -1;
+                }
 
                 for(int i = 0; i < (int)num1.size(); i++) {
 
-                    if(num1[i] < num2[i])
-                        return true;
+                    if(num1[i] > num2[i]) {
+                        if(b1.sign == 1) {
+                            return -1;
+                        }
+                        return 1;
+                    }
 
-                    if(num1[i] > num2[i])
-                        return false;
+                    if(num1[i] < num2[i]) {
+                        if(b2.sign == 1) {
+                            return 1;
+                        }
+                        return -1;
+                    }
 
                 }
 
-                return true;
             }
-            else if( this->sign ==1 && b.sign == 1 ) {
+            else if( b1.sign == 1 && b2.sign == 0) {
 
-                BigI b1,b2;
-
-                b1.sign = 0;
-                b2.sign = 0;
-
-                b1.num = num;
-                b2.num = b.num;
-
-                return b1 >= b2;
+                return -1;
 
             }
-            else if( this->sign == 1 && b.sign == 0) {
-                return true;
+            else if( b1.sign == 0 && b2.sign == 1) {
+
+                return 1;
+
             }
-            else {
-                return false;
-            }
+
+            return 0;
       }
 
-      //equal to operator
+      // greater than operator
 
-      bool operator == (BigI b) {
+      bool operator > ( BigI & b) {
 
-            if( (this->sign ^ b.sign) == 1) {
-                return false;
-            }
-
-            if( num.size() != b.num.size() ) {
-                return false;
-            }
-
-            for(int i = 0; i < (int)num.size(); i++) {
-                if( num[i] != b.num[i] ) {
-                    return false;
-                }
-            }
-
-            return true;
+            return assignmentOperators((*this), b) > 0;
 
       }
 
-      //not equal to operator
+      // greater than or equal to operator
 
-      bool operator != ( BigI b ) {
-            if( (this->sign ^ b.sign) == 1) {
-                return true;
-            }
+      bool operator >= ( BigI & b) {
 
-            if( num.size() != b.num.size() ) {
-                return true;
-            }
+            return assignmentOperators((*this), b) >= 0;
 
-            for(int i = 0; i < (int)num.size(); i++) {
-                if( num[i] != b.num[i] ) {
-                    return true;
-                }
-            }
-
-            return false;
       }
 
-      //greater than operator BigI > int
+      // less than operator
+
+      bool operator < ( BigI &b) {
+
+            return assignmentOperators((*this), b) < 0;
+
+      }
+
+      // less than or equal to operator
+
+      bool operator <= ( BigI &b) {
+
+            return assignmentOperators((*this), b) <= 0;
+
+      }
+
+      // equal to operator
+
+      bool operator == ( BigI &b) {
+
+            return assignmentOperators((*this), b) == 0;
+
+      }
+
+      // not equal to operator
+
+      bool operator != (  BigI &b ) {
+
+            return assignmentOperators((*this), b) != 0;
+
+      }
+
+      // greater than operator BigI > int
 
       bool operator > ( int x ) {
 
@@ -789,7 +572,7 @@ class BigI
             return (*this) > num2;
       }
 
-      //greater than or equal to operator BigI >= int
+      // greater than or equal to operator BigI >= int
 
       bool operator >= ( int x ) {
 
@@ -798,7 +581,7 @@ class BigI
             return (*this) >= num2;
       }
 
-      //less than to operator BigI < int
+      // less than to operator BigI < int
 
       bool operator < ( int x ) {
 
@@ -807,7 +590,7 @@ class BigI
             return (*this) < num2;
       }
 
-      //less than or equal to operator BigI <=int
+      // less than or equal to operator BigI <=int
 
        bool operator <= ( int x ) {
 
@@ -816,7 +599,7 @@ class BigI
             return (*this) <= num2;
       }
 
-      //equal to operator BigI == int
+      // equal to operator BigI == int
 
        bool operator == ( int x ) {
 
@@ -825,7 +608,7 @@ class BigI
             return (*this) == num2;
       }
 
-      //not equal to operator BigI != int
+      // not equal to operator BigI != int
 
        bool operator != ( int x ) {
 
@@ -834,107 +617,34 @@ class BigI
             return (*this) != num2;
       }
 
-     // type-casting from int to BigI
+      // brute-force multiplication
 
-     // operator BigI() const {
+      vector<int> naive_mul(vector<int> v1, vector<int> v2) {
 
-       //     BigI b;
-       //    if(x < 0) {
-       //         b.sign = 1;
-       //         x = -x;
-       //     }
-       //     else {
-       //         b.sign = 0;
-       //     }
-       //     vector<int> vec;
-       //     if(x == 0) {
-       //         vec.push_back(0);
-       //     }
-       //     while(x > 0) {
-       //         vec.insert(vec.begin(), x%10);
-       //         x/=10;
-       //     }
-       //     b.num = vec;
-       //     return b;
-
-       //}
-
-
-      //this method is used to convert int to BigI
-
-      BigI extractBigIFromInt(int x) {
-            BigI number;
-            if(x < 0) {
-                number.sign = 1;
-                x = -x;
-            }
-            else {
-                number.sign = 0;
-            }
-            vector<int> vec;
-            if(x == 0) {
-                vec.push_back(0);
-            }
-            while(x > 0) {
-                vec.insert(vec.begin(), x%10);
-                x/=10;
-            }
-            number.num = vec;
-            return number;
-      }
-
-      //this method is used to remove the starting zeros (if any)
-
-      void removeStartingZeros() {
-          int i;
-
-          for( i = 0; i < (int)this->num.size(); i++) {
-                if(this->num[i] != 0) {
-                    break;
+            int n1 = v1.size(), n2 = v2.size(),val;
+            vector<int> ans(n1 + n2, 0);
+            for(int i = n1 - 1; i >= 0; i--) {
+                int carry = 0;
+                if(v1[i]) {
+                    int idx = n1 - 1 - i ;
+                    for(int j = n2 - 1; j >= 0; j--) {
+                        val = ans[idx] + v1[i]*v2[j] + carry;
+                        ans[idx] = val % 10;
+                        carry = val / 10;
+                        idx++;
+                    }
+                    while(carry > 0) {
+                        val = ans[idx] + carry ;
+                        ans[idx] = val % 10;
+                        carry = val / 10;
+                        idx++;
+                    }
                 }
-          }
-
-          if( i == (int)this->num.size() ) {
-            this->num.clear();
-            this->num.push_back( 0 );
-            this->sign = 0;
-          }
-
-          else {
-            this->num.erase(this->num.begin(), this->num.begin() + i);
-          }
-
+            }
+            return ans;
       }
 
-      //this method is used to make both num1 and num2 to equal length
-
-      int makeEqualLength(vector<int> &num1, vector<int> &num2) {
-
-            int diff;
-
-            if(num1.size() == num2.size()) {
-                return num1.size();
-            }
-
-            if( num1.size() > num2.size()) {
-                diff = num1.size() - num2.size();
-                for(int i = 0; i < diff; i++) {
-                    num2.insert(num2.begin(), 0);
-                }
-
-                return num1.size();
-            }
-
-            diff = num2.size() - num1.size();
-            for(int i = 0; i < diff; i++) {
-                num1.insert(num1.begin(), 0);
-            }
-
-            return num2.size();
-
-      }
-
-      //this method is implementation of karatsuba algorithm
+      // this method is implementation of karatsuba algorithm
 
       vector<int> karatsuba(vector<int> num1, vector<int> num2) {
 
@@ -1024,7 +734,192 @@ class BigI
 
       }
 
-      //this method is used to divide dividend and divisor using subtraction
+      // this method either applies fft or inverse fft based on the value of isInverse
+      // if its true then it applies inverse fft else it applies fft
+
+      void fftAndIfft(vector<complex<double>> &vec, bool isInverse,const double pie) {
+
+            if(vec.size() == 1) {
+                return ;
+            }
+
+            int n = vec.size();
+
+            vector< complex<double> > evenvec(n/2),oddvec(n/2);
+
+            for(int i = 0; 2 * i < n; i++) {
+
+                evenvec[i] = vec[2*i];
+                oddvec[i] = vec[2*i+1];
+
+            }
+
+            fftAndIfft(evenvec, isInverse, pie);
+            fftAndIfft(oddvec, isInverse, pie);
+
+            //2*pie/n if fft else -2*pie/n if inverse fft
+
+            double angle = 2.0 * pie / n;
+
+            if(isInverse) {
+                angle = -angle;
+            }
+
+            //w = cosx + i sinx
+
+            complex <double> nth_roots(1), w(cos(angle), sin(angle));
+
+            for(int i = 0; 2*i < n; i++) {
+
+                vec[i] = evenvec[i] + nth_roots * oddvec[i];
+
+                vec[i + n/2] = evenvec[i] - nth_roots * oddvec[i];
+
+                if(isInverse) {
+                    vec[i] /= 2;
+                    vec[i + n/2] /= 2;
+                }
+
+                nth_roots *= w; // 1, w, w^2, w^3 .....
+
+            }
+
+      }
+
+      // this method calculates fft of num1 and num2 and multiplies them
+      // finally calculates inverse fft of the result
+      // then returns the result which is the multiplication of 2 BigI numbers
+
+      vector<int> fft_mul(vector<int> num1, vector<int> num2) {
+
+            vector< complex<double> > num1_com(num1.begin(), num1.end()), num2_com(num2.begin(), num2.end());
+
+            // making n as perfect power of 2 and size greater than num1.size() + num2.size()
+            // because when we multiply 2 n-digit numbers then the resultant contains 2*n digits
+
+            int n = 1;
+
+            while(n < (int)(num1.size() + num2.size())) {
+                n <<= 1;
+            }
+
+            num1_com.resize(n);
+            num2_com.resize(n);
+
+            const double pie = acos(-1);
+
+            // fft
+            fftAndIfft(num1_com, false, pie);
+
+            // fft
+            fftAndIfft(num2_com, false, pie);
+
+            for(int i = 0; i < n; i++) {
+                num1_com[i] *= num2_com[i];
+            }
+
+            // inverse fft
+
+            fftAndIfft(num1_com, true, pie);
+
+            // converting the complex num1_com into int
+
+            vector<int> ans(n);
+
+            for(int i = 0; i < n; i++) {
+                ans[i] = round(num1_com[i].real());
+            }
+
+            return ans;
+      }
+
+      // this method returns both quotient and remainder
+
+      pair<BigI, BigI> quotientAndRemainder(BigI &dividend, BigI &divisor) {
+
+            BigI b1,b2;
+            b1 = dividend;
+            b2 = divisor;
+
+            BigI quotient,remainder_bigI;
+
+            quotient.sign = (b1.sign ^ b2.sign);
+            remainder_bigI.sign = (b1.sign ^ b2.sign);
+
+            if( b1 < b2 ) {
+
+                BigI zero = this->extractBigIFromInt(0);
+
+                return {zero, b1};
+
+            }
+
+            if( b1 == b2 ) {
+
+                BigI one = this->extractBigIFromInt(1);
+
+                BigI zero = this->extractBigIFromInt(0);
+
+                return {one, zero};
+
+            }
+
+            b1.sign = b2.sign = 0;
+
+            BigI zero;
+            int dividendSize = b1.num.size();
+            zero = extractBigIFromInt(0);
+
+            if(b2 == zero) {
+                cerr<<"Division by zero error: ";
+                BigI ans = extractBigIFromInt(-1);
+                return {ans,ans};
+            }
+
+            BigI t;
+            t.sign = 0;
+
+            t.num.push_back(b1.num[0]);
+
+            int i;
+
+            for(i = 1; i < dividendSize; i++) {
+                if( t >= b2 ) {
+                    break;
+                }
+
+                t.num.push_back( b1.num[i] );
+            }
+
+            pair<int, vector<int> > quotientAndRemainderVar = this->divideBySubtraction(t, b2);
+
+            quotient.num.push_back( quotientAndRemainderVar.first );
+            vector<int> remainder = quotientAndRemainderVar.second;
+
+            while( i < dividendSize) {
+
+                remainder.push_back(b1.num[i]);
+                BigI remainder_bigi;
+                remainder_bigi.sign = 0;
+                remainder_bigi.num = remainder;
+                remainder_bigi.removeStartingZeros();
+                i++;
+
+                pair<int, vector<int> > quotientAndRemainder1 = this->divideBySubtraction(remainder_bigi, b2);
+
+                quotient.num.push_back( quotientAndRemainder1.first );
+
+                remainder = quotientAndRemainder1.second;
+
+            }
+
+            remainder_bigI.num = remainder;
+
+            return {quotient,remainder_bigI};
+
+      }
+
+      // this method is used to divide dividend and divisor using subtraction
 
       pair<int, vector<int> > divideBySubtraction(BigI dividend, BigI divisor) {
             int quotient = 0;
@@ -1045,16 +940,101 @@ class BigI
             return {quotient, dividend.num};
       }
 
-      friend ostream & operator << (ostream & , BigI & );
-      friend istream & operator >> (istream & , BigI & );
-      friend BigI abs(BigI);
-      friend BigI sqrt(BigI);
-      friend BigI fact(BigI);
+      // this method is used to convert int to BigI
+
+      BigI extractBigIFromInt(int x) {
+            BigI number;
+            if(x < 0) {
+                number.sign = 1;
+                x = -x;
+            }
+            else {
+                number.sign = 0;
+            }
+            vector<int> vec;
+            if(x == 0) {
+                vec.push_back(0);
+            }
+            while(x > 0) {
+                vec.insert(vec.begin(), x%10);
+                x/=10;
+            }
+            number.num = vec;
+            return number;
+      }
+
+      // this method is used to make both num1 and num2 to equal length
+
+      int makeEqualLength(vector<int> &num1, vector<int> &num2) {
+
+            int diff;
+
+            if(num1.size() == num2.size()) {
+                return num1.size();
+            }
+
+            if( num1.size() > num2.size()) {
+                diff = num1.size() - num2.size();
+                for(int i = 0; i < diff; i++) {
+                    num2.insert(num2.begin(), 0);
+                }
+
+                return num1.size();
+            }
+
+            diff = num2.size() - num1.size();
+            for(int i = 0; i < diff; i++) {
+                num1.insert(num1.begin(), 0);
+            }
+
+            return num2.size();
+
+      }
+
+      // this method is used to remove the starting zeros (if any)
+
+      void removeStartingZeros() {
+          int i;
+
+          for( i = 0; i < (int)this->num.size(); i++) {
+                if(this->num[i] != 0) {
+                    break;
+                }
+          }
+
+          if( i == (int)this->num.size() ) {
+            this->num.clear();
+            this->num.push_back( 0 );
+            this->sign = 0;
+          }
+
+          else {
+            this->num.erase(this->num.begin(), this->num.begin() + i);
+          }
+
+      }
+
+      // this will return the length of the BigI number
+
+      int size() {
+          return num.size();
+      }
+
+      friend ostream & operator << (ostream & , const BigI &);
+      friend istream & operator >> (istream & , BigI &);
+      friend BigI abs(BigI &);
+      friend BigI max(BigI &, BigI &);
+      friend BigI min(BigI &, BigI &);
+      friend BigI sqrt(BigI &);
+      friend BigI fact(BigI &);
       friend BigI pow(BigI, BigI);
       friend BigI gcd(BigI, BigI);
+      friend BigI lcm(BigI &, BigI &);
 };
 
-ostream & operator << (ostream & out, BigI & b){
+// overloading << operator for producing BigI as output using cout
+
+ostream & operator << (ostream & out, const BigI & b){
 
     if(b.sign) {
         out << "-";
@@ -1065,6 +1045,8 @@ ostream & operator << (ostream & out, BigI & b){
     return out;
 
 }
+
+// overloading >> operator for taking BigI as input using cin
 
 istream & operator >> (istream & in, BigI & b){
     string str;
@@ -1099,16 +1081,16 @@ istream & operator >> (istream & in, BigI & b){
     return in;
 }
 
-//this method calculates absolute value
+// this method calculates absolute value
 
-BigI abs(BigI b) {
+BigI abs(BigI & b) {
     b.sign = 0;
     return b;
 }
 
-//this method calculates max value between 2 BigI numbers
+// this method calculates max value between 2 BigI numbers
 
-BigI max(BigI num1, BigI num2) {
+BigI max(BigI & num1,BigI & num2) {
 
     if( num1 > num2 ) {
         return num1;
@@ -1118,9 +1100,9 @@ BigI max(BigI num1, BigI num2) {
 
 }
 
-//this method calculates min value between 2 BigI numbers
+// this method calculates min value between 2 BigI numbers
 
-BigI min(BigI num1, BigI num2) {
+BigI min(BigI & num1, BigI & num2) {
 
     if( num1 > num2 ) {
         return num2;
@@ -1130,19 +1112,17 @@ BigI min(BigI num1, BigI num2) {
 
 }
 
-//this method calculates square root of BigI
+// this method calculates square root of BigI
 
-BigI sqrt(BigI b) {
+BigI sqrt(BigI & b) {
     if(b.sign == 1) {
 
-        BigI ans;
-        ans = ans.extractBigIFromInt(-1);
+        BigI ans = b.extractBigIFromInt(-1);
 
         return ans;
     }
 
-    BigI d;
-    d = d.extractBigIFromInt(1);
+    BigI d = b.extractBigIFromInt(1);
 
     while(1) {
 
@@ -1156,8 +1136,7 @@ BigI sqrt(BigI b) {
 
     }
 
-    BigI ans;
-    ans = ans.extractBigIFromInt(0);
+    BigI ans = b.extractBigIFromInt(0);
 
     while(1) {
 
@@ -1183,14 +1162,13 @@ BigI sqrt(BigI b) {
     return ans;
 }
 
-//this method calculates factorial of BigI
+// this method calculates factorial of BigI
 
-BigI fact(BigI b) {
-    BigI i;
-    i = i.extractBigIFromInt(1);
+BigI fact(BigI &b) {
 
-    BigI ans;
-    ans = ans.extractBigIFromInt(1);
+    BigI i = b.extractBigIFromInt(1);
+
+    BigI ans = b.extractBigIFromInt(1);
 
     while( i <= b) {
         ans = ans * i;
@@ -1200,7 +1178,7 @@ BigI fact(BigI b) {
     return ans;
 }
 
-//this method calculates BigI power BigI
+// this method calculates BigI power BigI
 
 BigI pow(BigI b1, BigI b2) {
 
@@ -1233,12 +1211,19 @@ BigI pow(BigI b1, BigI b2) {
 
 }
 
-//this method calculates gcd
+// this method calculates gcd
 
 BigI gcd(BigI num1, BigI num2) {
+
     BigI zero,temp;
+
     zero = zero.extractBigIFromInt(0);
+
+    abs(num1);
+    abs(num2);
+
     while(1) {
+
         if(num2 == zero) {
             return num1;
         }
@@ -1250,9 +1235,10 @@ BigI gcd(BigI num1, BigI num2) {
 
 }
 
-//this method calculates lcm
+// this method calculates lcm
 
-BigI lcm(BigI num1, BigI num2) {
+BigI lcm(BigI &num1, BigI &num2) {
 
     return (num1/(gcd(num1,num2)))*num2;
+
 }
