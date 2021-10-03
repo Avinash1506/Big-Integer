@@ -3,7 +3,7 @@
 
 Big Integer is a header file which handles various operations on very large numbers.
 
-The maximum number which can be stored in long long int in c++ is 9, 223, 372, 036, 854, 775, 807 which contains 19 digits but using this header file we can perform various operations on numbers containing up to 10^5 digits.
+The maximum number which can be stored in long long int in c++ is 9, 223, 372, 036, 854, 775, 807 which contains 19 digits but using this header file we can perform various operations on numbers containing up to 10<sup>5</sup> digits.
 
 Supported operations: 
 
