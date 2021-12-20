@@ -48,7 +48,7 @@ Supported operations:
     * min(BigI, BigI)
     * sqrt(BigI)
     * fact(BigI)
-    * pow(BigI)
+    * pow(BigI, BigI)
     * gcd(BigI, BigI)
     * lcm(BigI, BigI)
     * size() 
