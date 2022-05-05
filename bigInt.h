@@ -981,9 +981,12 @@ class BigI
                 vec.push_back(0);
             }
             while(x > 0) {
-                vec.insert(vec.begin(), x%10);
+                // vec.insert(vec.begin(), x%10);
+                vec.push_back(x%10);
                 x/=10;
             }
+
+            reverse(vec.begin(), vec.end());
             number.num = vec;
             return number;
       }
@@ -1109,8 +1112,9 @@ istream & operator >> (istream & in, BigI & b){
 // this method calculates absolute value
 
 BigI abs(BigI & b) {
-    b.sign = 0;
-    return b;
+    BigI tmp = b;
+    tmp.sign = 0;
+    return tmp;
 }
 
 // this method calculates max value between 2 BigI numbers
@@ -1244,18 +1248,18 @@ BigI gcd(BigI num1, BigI num2) {
 
     zero = zero.extractBigIFromInt(0);
 
-    abs(num1);
-    abs(num2);
+    BigI tmp1 = abs(num1);
+    BigI tmp2 = abs(num2);
 
     while(1) {
 
-        if(num2 == zero) {
-            return num1;
+        if(tmp2 == zero) {
+            return tmp1;
         }
 
-        temp = num2;
-        num2 = num1 % num2;
-        num1 = temp;
+        temp = tmp2;
+        tmp2 = tmp1 % tmp2;
+        tmp1 = temp;
     }
 
 }
