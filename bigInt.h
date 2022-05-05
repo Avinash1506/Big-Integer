@@ -120,18 +120,32 @@ class BigI
 
                 BigI ans;
                 if( (this->sign == 0 && obj.sign == 0) ) {
-                    ans.sign = 0;
+                    if(*this > obj) {
+                        ans.sign = 0;
+                    }
+                    else {
+                        ans.sign = 1;
+                    }
                 }
 
                 if( (this->sign == 1 && obj.sign == 1) ) {
-                    ans.sign = 1;
+                    if(*this > obj) {
+                        ans.sign = 0;
+                    }
+                    else {
+                        ans.sign = 1;
+                    }
                 }
 
                 vector <int> num1(num);
                 vector <int> num2(obj.num);
                 vector <int> res;
-                if( *this < obj) {
-                    ans.sign = ans.sign ^ 1;
+                BigI tmp1 = *this;
+                BigI tmp2 = obj;
+                tmp1 = abs(tmp1);
+                tmp2 = abs(tmp2);
+                if( tmp1 < tmp2) {
+                    //ans.sign = ans.sign ^ 1;
                     swap(num1, num2);
                 }
 
@@ -193,6 +207,7 @@ class BigI
                     num2.sign = 0;
 
                     ans = num1 + num2;
+                    ans.sign = 0;
 
                     return ans;
                 }
@@ -206,7 +221,7 @@ class BigI
 
                     ans = num1 + num2;
 
-                    ans.sign = ans.sign ^ 1; // multiplying by -1
+                    ans.sign = 1; // multiplying by -1
 
                     return ans;
                 }
@@ -302,6 +317,8 @@ class BigI
 
             BigI num2;
             num2 = num2.extractBigIFromInt(x);
+
+            //cout<<num2<<"\n";
 
             return *this - num2;
       }
@@ -846,6 +863,9 @@ class BigI
             quotient.sign = (b1.sign ^ b2.sign);
             remainder_bigI.sign = (b1.sign ^ b2.sign);
 
+            b1.sign = 0;
+            b2.sign = 0;
+
             if( b1 < b2 ) {
 
                 BigI zero = this->extractBigIFromInt(0);
@@ -915,6 +935,11 @@ class BigI
 
             remainder_bigI.num = remainder;
 
+            BigI tmp;
+            tmp = tmp.extractBigIFromInt(0);
+            if(remainder_bigI.num == tmp.num) {
+                remainder_bigI.sign = 0;
+            }
             return {quotient,remainder_bigI};
 
       }
